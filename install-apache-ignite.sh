@@ -180,6 +180,8 @@ sudo cp ~/default-config.xml $IGNITE_HOME/config/default-config.xml;
 echo "Updated Ignite default-config.xml"
 
 cd $IGNITE_HOME;
+sudo chmod 777 bin/*.sh;
+
 echo "starting Ignite in background.."
 
 export HADOOP_HOME="/usr/hdp/current/hadoop-client"
