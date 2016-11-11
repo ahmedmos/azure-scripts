@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Created By: 
+#    Ahmed Mostafa
+#    Data Solutions Architect
+#    Microsoft Netherlands
+# 
 echo "Args: AZURE_BLOB_URL AMBARI_ADMIN AMBARI_PWD AMBARI_HOST AMBARI_CLUSTER"
 
 function package_exists() {
