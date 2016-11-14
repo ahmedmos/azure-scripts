@@ -5,7 +5,7 @@
 #    Data Solutions Architect
 #    Microsoft Netherlands
 # 
-echo "Args: AZURE_BLOB_URL AMBARI_ADMIN AMBARI_PWD AMBARI_HOST AMBARI_CLUSTER SSHUSER"
+echo "Args: AZURE_BLOB_URL AMBARI_ADMIN AMBARI_PWD AMBARI_HOST AMBARI_CLUSTER SSH_USER"
 
 function package_exists() {
     return dpkg -l "$1" &> /dev/null
@@ -25,7 +25,7 @@ else
   export FS_DEFAULT_DFS="$1"
 fi
 if [ -z "$2" ]; then
-  export AMBARI_ADMIN="default admin username"
+  export AMBARI_ADMIN="default Ambari admin username"
 else 
   export AMBARI_ADMIN="$2"
 fi
@@ -43,6 +43,11 @@ if [ -z "$5" ]; then
   export AMBARI_CLUSTER="default Ambari Cluster Name"
 else 
   export AMBARI_CLUSTER="$5"
+fi
+if [ -z "$6" ]; then
+  export SSH_USER="default SSH Username"
+else 
+  export SSH_USER="$6"
 fi
 
 #remove before installing
