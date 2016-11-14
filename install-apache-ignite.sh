@@ -5,7 +5,7 @@
 #    Data Solutions Architect
 #    Microsoft Netherlands
 # 
-echo "Args: AZURE_BLOB_URL AMBARI_ADMIN AMBARI_PWD AMBARI_HOST AMBARI_CLUSTER"
+echo "Args: AZURE_BLOB_URL AMBARI_ADMIN AMBARI_PWD AMBARI_HOST AMBARI_CLUSTER SSHUSER"
 
 function package_exists() {
     return dpkg -l "$1" &> /dev/null
@@ -122,6 +122,7 @@ export SPARK_CLASSPATH=\$SPARK_CLASSPATH:\$IGNITE_LIBS
 EOT
 EOF
 
+
 echo "Spark spark-env.sh is updated.."
 
 #backup core-site.xml
@@ -190,6 +191,7 @@ sudo chmod 777 bin/*.sh;
 echo "starting Ignite in background.."
 
 export HADOOP_HOME="/usr/hdp/current/hadoop-client"
-sudo nohup bin/ignite.sh &
+sudo chown -R adminssh. /hadoop/ignite/apache-ignite-hadoop-1.7.0-bin/work/
+nohup bin/ignite.sh &
 
 exit $?
