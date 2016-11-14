@@ -196,7 +196,7 @@ sudo chmod 777 bin/*.sh;
 echo "starting Ignite in background.."
 
 export HADOOP_HOME="/usr/hdp/current/hadoop-client"
-sudo chown -R adminssh. /hadoop/ignite/apache-ignite-hadoop-1.7.0-bin/work/
+sudo chown -R $SSH_USER. /hadoop/ignite/apache-ignite-hadoop-1.7.0-bin/work/
 nohup bin/ignite.sh &
 
 exit $?
