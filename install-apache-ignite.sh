@@ -182,7 +182,10 @@ xmlstarlet ed -N x="http://www.springframework.org/schema/beans" -a "//x:bean[@c
 xmlstarlet ed -N x="http://www.springframework.org/schema/beans" -s "//x:property[@name='configPaths']" -t elem -n list -v "" ignite-default-config-prop.xml > ignite-default-config-list.xml;
 
 #add value element to list
-xmlstarlet ed -N x="http://www.springframework.org/schema/beans" -s "//x:property[@name='configPaths']/x:list" -t elem -n value -v "/usr/hdp/current/hadoop-client/conf/core-site.xml" ignite-default-config-list.xml > default-config.xml;
+xmlstarlet ed -N x="http://www.springframework.org/schema/beans" -s "//x:property[@name='configPaths']/x:list" -t elem -n value -v "/usr/hdp/current/hadoop-client/conf/core-site.xml" ignite-default-config-list.xml > default-config-sdfs.xml;
+
+#replace discoverySpi addresses list
+#xmlstarlet ed -N x="http://www.springframework.org/schema/beans" -s "//x:property[@name='addresses']/x:list" -t elem -n value -v "/usr/hdp/current/hadoop-client/conf/core-site.xml" default-config-sdfs.xml > default-config-spi.xml;
 
 echo "create a symlink for HADOOP_COMMON needed by Ignite"
 sudo mkdir -p $HADOOP_HOME/share/hadoop/common/;
