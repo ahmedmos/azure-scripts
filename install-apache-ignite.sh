@@ -161,7 +161,10 @@ echo "Hadoop core-site.xml is updated.."
 
 #append and change ignite default config xml
 cd $IGNITE_HOME;
-sudo sed '/^\s*<!--/!b;N;/name="secondaryFileSystem"/s/.*\n//;T;:a;n;/^\s*-->/!ba;d' config/default-config.xml > ~/ignite-default-config.xml;
+sudo sed '/^\s*<!--/!b;N;/name="secondaryFileSystem"/s/.*\n//;T;:a;n;/^\s*-->/!ba;d' config/default-config.xml > ~/sdfs-default-config.xml;
+
+#enable discovery services
+sudo sed '/^\s*<!--/!b;N;/name="discoverySpi"/s/.*\n//;T;:a;n;/^\s*-->/!ba;d' ~/sdfs-default-config.xml > ~/ignite-default-config.xml;
 
 echo "Uncommented Secondary File System in Ignite default-config.xml"
 
