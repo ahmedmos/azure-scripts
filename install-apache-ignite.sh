@@ -137,6 +137,7 @@ cd $SPARK_HOME/conf;
 sudo cp spark-env.sh spark-env.sh.backup_$(date +%Y%m%d_%H%M%S);
 
 sudo su spark <<'EOF'
+cp $SPARK_HOME/conf/spark-env.sh spark-env.sh.backup_$(date +%Y%m%d_%H%M%S);
 sed -i -e '$a\' $SPARK_HOME/conf/spark-env.sh
 
 IGNITE_BINARY="apache-ignite-hadoop-1.7.0-bin"
