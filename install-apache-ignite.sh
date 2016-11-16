@@ -133,11 +133,10 @@ sudo ln -sf /usr/hdp/current/hadoop-client/lib/azure-storage-4.2.0.jar;
 sudo ln -sf /usr/hdp/current/hadoop-client/lib/azure-keyvault-core-0.8.0.jar;
 
 #backup spark-env.sh
-cd $SPARK_HOME/conf;
-sudo cp spark-env.sh spark-env.sh.backup_$(date +%Y%m%d_%H%M%S);
+sudo cp $SPARK_HOME/conf/spark-env.sh $SPARK_HOME/conf/spark-env.sh.backup.beforeignite;
+sudo chown spark:spark $SPARK_HOME/conf/spark-env.sh.backup.beforeignite;
 
 sudo su spark <<'EOF'
-cp $SPARK_HOME/conf/spark-env.sh spark-env.sh.backup_$(date +%Y%m%d_%H%M%S);
 sed -i -e '$a\' $SPARK_HOME/conf/spark-env.sh
 
 IGNITE_BINARY="apache-ignite-hadoop-1.7.0-bin"
