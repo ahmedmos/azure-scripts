@@ -122,6 +122,12 @@ sudo ln -sf $IGNITE_HOME/libs/ignite-core-1.7.0.jar;
 sudo ln -sf $IGNITE_HOME/libs/ignite-shmem-1.0.0.jar;
 sudo ln -sf $IGNITE_HOME/libs/ignite-hadoop/ignite-hadoop-1.7.0.jar;
 
+echo "Creating Hadoop Azure Symlinks into Ignite Libs"
+cd $IGNITE_HOME/libs;
+sudo ln -sf /usr/hdp/current/hadoop-client/hadoop-azure.jar;
+sudo ln -sf /usr/hdp/current/hadoop-client/lib/azure-storage-4.2.0.jar;
+sudo ln -sf /usr/hdp/current/hadoop-client/lib/azure-keyvault-core-0.8.0.jar;
+
 #backup spark-env.sh
 cd $SPARK_HOME/conf;
 sudo cp spark-env.sh spark-env.sh.backup_$(date +%Y%m%d_%H%M%S);
