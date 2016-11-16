@@ -41,7 +41,11 @@ do
   echo "node = $node"
 done
 
-
+#kill ignite if running
+ignitepid=`ps -ef | grep ignite | grep default-config.xml | awk '{print $2}'`
+if [ ! -z "$ignitepid" ]; then
+   sudo kill -9 $ignitepid
+fi
 
 IGNITE_BINARY="apache-ignite-hadoop-1.7.0-bin"
 export IGNITE_HOME_DIR="/hadoop/ignite"
