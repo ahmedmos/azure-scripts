@@ -92,12 +92,20 @@ fi
 #COMMANDS="
 
 sudo mkdir -p /hadoop/ignite/
-sudo wget -P $IGNITE_HOME_DIR https://www.apache.org/dist/ignite/1.7.0/apache-ignite-hadoop-1.7.0-bin.zip;
+sudo wget -P $IGNITE_HOME_DIR https://www.apache.org/dist/ignite/1.7.0/$IGNITE_BINARY.zip;
 sudo unzip $IGNITE_HOME_DIR/$IGNITE_BINARY.zip -d $IGNITE_HOME_DIR;
+
+sudo wget -P ~/ http://mirror.vorboss.net/apache//ignite/1.7.0/apache-ignite-fabric-1.7.0-bin.zip
+sudo unzip ~/apache-ignite-fabric-1.7.0-bin.zip
+IGNITE_SPARK_LIBS_DIR="~/apache-ignite-fabric-1.7.0-bin/libs/optional/ignite-spark_2.10"
 
 echo "Creating IGNITE and HADOOP envvars"
 #export important variables
 export IGNITE_HOME="$IGNITE_HOME_DIR/$IGNITE_BINARY";
+
+echo "copying scala 2.10 libs instead of scala 2.100"
+sudo rm -R $IGNITE_HOME/libs/ignite-spark
+sudo cp $IGNITE_SPARK_LIBS_DIR/libs/ignite-spark_2.10/ $IGNITE_HOME/libs/
 
 if [ ! -d "$IGNITE_HOME" ]; then
   echo "Ignite couldn't be extracted"
@@ -240,6 +248,9 @@ echo "Updated Ignite default-config.xml"
 
 cd $IGNITE_HOME;
 sudo chmod 777 bin/*.sh;
+
+sudo rm apache-ignite-fabric-1.7.0-bin.zip
+sudo rm -R apache-ignite-fabric-1.7.0-bin
 
 echo "starting Ignite in background.."
 
