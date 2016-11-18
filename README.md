@@ -39,7 +39,7 @@ Running the script as a ScriptAction or manually is simple, all you need to do i
   ```
 2. Check the Ambari HDFS configuration by searching for `igfs`
 3. Using HDFS commands:
-  1. Browse your blob storage, for example:
+  1. Browse your blob storage:
     ```
     hdfs dfs -ls wasb://container@account.blob.core.windows.net/HdiNotebooks
     ```
