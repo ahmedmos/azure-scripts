@@ -13,6 +13,9 @@ Running the script as a ScriptAction or manually is simple, all you need to do i
   ```
   wasb://container@account.blob.core.windows.net
   ```
+2. The Ambari Admin username 
+3. The Ambari Admin password
+  - The Ambari Admin name & password are needed to automatically push Ignite's configuration into HDFS _core-site.xml_via Ambari's _config.sh_ command.
 
 ## Example of using the _install-apache-ignite.sh_ script
 The following snippet shows how to pass the arguments for a cluster with a name: myHDICluster. The cluster consists of 2 Head nodes and 2 Worker nodes.
