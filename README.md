@@ -6,11 +6,14 @@ This script installs [Apache Ignite](www.ignite.apache.org) on an HDInsight clus
 
 The cluster is designed to run as a [ScriptAction](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-hadoop-script-actions) **AFTER provisioning the cluster**; as it needs information about the name & worker nodes.
 
-Running the script as a ScriptAction or manually is simple, all you need to do is submit the correct arguments separated by a space:
-1. The wasb storage URL of which you want Apache Ignite to interface with 
-..* The URL should be: wasb://container@account.blob.core.windows.net
-..* you can find it in your **HDFS core-site** configuration
+Running the script as a ScriptAction or manually is simple, all you need to do is submit the correct arguments separated by a space
+
+* The wasb storage URL of which you want Apache Ignite to interface with 
+  - The URL should be: wasb://container@account.blob.core.windows.net
+  - you can find it in your **HDFS core-site** configuration
+
 2. The Ambari Admin username 
+
 3. The Ambari Admin password
 ..* Ambari Admin name & password are needed to automatically push Ignite's configuration into HDFS _core-site.xml_via Ambari's _config.sh_ command.
 4. The IP address of your namenode where Ambari server is running
