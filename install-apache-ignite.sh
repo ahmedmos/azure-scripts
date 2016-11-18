@@ -53,7 +53,7 @@ do
 done
 
 IGNITE_BINARY="apache-ignite-hadoop-1.7.0-bin";
-export IGNITE_HOME_DIR="~/ignite";
+export IGNITE_HOME_DIR="/hadoop/ignite";
 export IGNITE_HOME="$IGNITE_HOME_DIR/$IGNITE_BINARY";
 
 #kill ignite if running
@@ -106,9 +106,9 @@ sudo mkdir -p $IGNITE_HOME_DIR
 sudo wget -P $IGNITE_HOME_DIR https://www.apache.org/dist/ignite/1.7.0/$IGNITE_BINARY.zip;
 sudo unzip $IGNITE_HOME_DIR/$IGNITE_BINARY.zip -d $IGNITE_HOME_DIR;
 
-#sudo wget -P ~/ http://mirror.vorboss.net/apache//ignite/1.7.0/apache-ignite-fabric-1.7.0-bin.zip
-#sudo unzip ~/apache-ignite-fabric-1.7.0-bin.zip
-#IGNITE_SPARK_LIBS_DIR="~/apache-ignite-fabric-1.7.0-bin/libs/optional/ignite-spark_2.10"
+#sudo wget -P /hadoop/ http://mirror.vorboss.net/apache//ignite/1.7.0/apache-ignite-fabric-1.7.0-bin.zip
+#sudo unzip /hadoop/apache-ignite-fabric-1.7.0-bin.zip
+#IGNITE_SPARK_LIBS_DIR="/hadoop/apache-ignite-fabric-1.7.0-bin/libs/optional/ignite-spark_2.10"
 
 echo "Creating IGNITE and HADOOP envvars"
 #export important variables
@@ -148,7 +148,7 @@ sed -i -e '$a\' $SPARK_HOME/conf/spark-env.sh
 
 
 IGNITE_BINARY="apache-ignite-hadoop-1.7.0-bin";
-export IGNITE_HOME_DIR="~/ignite";
+export IGNITE_HOME_DIR="/hadoop/ignite";
 export IGNITE_HOME="$IGNITE_HOME_DIR/$IGNITE_BINARY";
 export HADOOP_HOME="/usr/hdp/current/hadoop-client";
 export HADOOP_COMMON_HOME="/usr/hdp/current/hadoop-client";
@@ -193,7 +193,7 @@ sudo cp core-site.xml $IGNITE_HOME/core-site.xml.backup.beforeignite;
 #sudo cp $HADOOP_HOME/conf/core-site.xml $HADOOP_HOME/conf/core-site.xml.beforeignite_$(date +%Y%m%d_%H%M%S);
 
 #append ignite hadoop properties
-#sed '/<\/configuration>/i <property><name>fs.igfs.impl</name><value>org.apache.ignite.hadoop.fs.v1.IgniteHadoopFileSystem</value></property><property><name>fs.AbstractFileSystem.igfs.impl</name><value>org.apache.ignite.hadoop.fs.v2.IgniteHadoopFileSystem</value></property>' $HADOOP_HOME/conf/core-site.xml > ~/sedhdfs.out;
+#sed '/<\/configuration>/i <property><name>fs.igfs.impl</name><value>org.apache.ignite.hadoop.fs.v1.IgniteHadoopFileSystem</value></property><property><name>fs.AbstractFileSystem.igfs.impl</name><value>org.apache.ignite.hadoop.fs.v2.IgniteHadoopFileSystem</value></property>' $HADOOP_HOME/conf/core-site.xml > /hadoop/sedhdfs.out;
 #EOF
 #sudo cp /home/hdfs/sedhdfs.out $HADOOP_CONF_DIR/core-site.xml
 #sudo chown hdfs:hadoop $HADOOP_CONF_DIR/core-site.xml
