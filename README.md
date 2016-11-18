@@ -1,2 +1,5 @@
 # azure-scripts
-This repo will contain Azure management scripts for certain purposes
+This repo contains Azure management scripts for certain purposes.
+
+#install-apache-ignite.sh
+
