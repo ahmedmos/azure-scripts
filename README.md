@@ -31,3 +31,35 @@ Running the script as a ScriptAction or manually is simple, all you need to do i
 7. The IP addresses of **ALL** your headnodes & worker nodes **separated by SPACE**
   - _why is this needed?_ The script configures the Apache Ignite **`default-config.xml`** and enables cluster discovery
   - _What is cluster discovery?_ Cluster discovery enables all of the Ignite processes running on your nodes to sync with each other
+
+## How to test if Apache Ignite Works?
+1. check the Ignite process is running on your nodes, for example using:
+  ```
+  ps -aef | grep default-config.xml
+  ```
+2. Check the Ambari HDFS configuration by searching for `igfs`
+3. Using HDFS commands:
+  1. Browse your blob storage, for example:
+    ```
+    hdfs dfs -ls wasb://container@account.blob.core.windows.net/HdiNotebooks
+    ```
+  2. Browse Ignite:
+    ```
+    hdfs dfs -ls igfs:///HdiNotebooks
+    ```
+  The bove commands should return the same results
+4. Using Spark-Shell, open `spark-shell` and run an example as follows:
+  ```scala
+  val textdata = sc.textFile("wasb://container@account.blob.core.windows.net/Folder/textFile.ext")
+  val count = textdata.count
+  val first = textdata.first
+  val dataWithoutHeader = textdata.filter(line => line != first)
+  val datacount = dataWithoutHeader.count
+  
+  val igtextdata = sc.textFile("igfs:///Folder/textFile.ext")
+  val igcount = igtextdata.count
+  val igfirst = igtextdata.first
+  val igdataWithoutHeader = igtextdata.filter(line => line != first)
+  val igdatacount = igdataWithoutHeader.count
+  ```
+If the above expirements above work, then **Congratulations**, Apache Ignite is acting as a secondary in-memory file system for your blob. You can start testing its performance against pulling directly from your blob storage. 
