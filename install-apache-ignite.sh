@@ -1,11 +1,5 @@
 #!/bin/bash
 
-# Created By: 
-#    Ahmed Mostafa
-#    Data Solutions Architect
-#    Microsoft Netherlands
-# 
-
 function package_exists() {
     return dpkg -l "$1" &> /dev/null
 }
@@ -69,53 +63,16 @@ if [ -d "$IGNITE_HOME" ]; then
 	sudo rm $IGNITE_HOME_DIR/$IGNITE_BINARY.zip; 
 fi
 
-#if [ -z "$1" ]; then
-#  export FS_DEFAULT_DFS="default wasb://"
-#else 
-#  export FS_DEFAULT_DFS="$1"
-#fi
-#if [ -z "$2" ]; then
-#  export AMBARI_ADMIN="default Ambari admin username"
-#else 
-#  export AMBARI_ADMIN="$2"
-#fi
-#if [ -z "$3" ]; then
-#  export AMBARI_PWD="default password"
-#else 
-#  export AMBARI_PWD="$3"
-#fi
-#if [ -z "$4" ]; then
-#  export AMBARI_HOST="default IP address or FQDN"
-#else 
-#  export AMBARI_HOST="$4"
-#fi
-#if [ -z "$5" ]; then
-#  export AMBARI_CLUSTER="default Ambari Cluster Name"
-#else 
-#  export AMBARI_CLUSTER="$5"
-#fi
-#if [ -z "$6" ]; then
-#  export SSH_USER="default SSH Username"
-#else 
-#  export SSH_USER="$6"
-#fi
-
 #install ignite
-
 sudo mkdir -p $IGNITE_HOME_DIR
 sudo wget -P $IGNITE_HOME_DIR https://www.apache.org/dist/ignite/1.7.0/$IGNITE_BINARY.zip;
 sudo unzip $IGNITE_HOME_DIR/$IGNITE_BINARY.zip -d $IGNITE_HOME_DIR;
-
-#sudo wget -P /hadoop/ http://mirror.vorboss.net/apache//ignite/1.7.0/apache-ignite-fabric-1.7.0-bin.zip
-#sudo unzip /hadoop/apache-ignite-fabric-1.7.0-bin.zip
-#IGNITE_SPARK_LIBS_DIR="/hadoop/apache-ignite-fabric-1.7.0-bin/libs/optional/ignite-spark_2.10"
 
 echo "Creating IGNITE and HADOOP envvars"
 #export important variables
 
 echo "remove ignite-spark 2.11 libs.."
 sudo rm -R $IGNITE_HOME/libs/ignite-spark
-#sudo cp $IGNITE_SPARK_LIBS_DIR/libs/ignite-spark_2.10/ $IGNITE_HOME/libs/
 
 if [ ! -d "$IGNITE_HOME" ]; then
   echo "Ignite couldn't be extracted"
@@ -141,8 +98,7 @@ sudo ln -sf /usr/hdp/current/hadoop-client/lib/azure-keyvault-core-0.8.0.jar;
 #backup spark-env.sh
 echo "backing up spark-env.sh to $IGNITE_HOME"
 sudo cp $SPARK_HOME/conf/spark-env.sh $IGNITE_HOME/spark-env.sh.backup.beforeignite;
-#sudo chown spark:spark $SPARK_HOME/conf/spark-env.sh.backup.beforeignite;
-
+	
 sudo su spark <<'EOF'
 sed -i -e '$a\' $SPARK_HOME/conf/spark-env.sh
 
@@ -179,24 +135,6 @@ echo "Spark spark-env.sh is updated.."
 cd $HADOOP_CONF_DIR;
 echo "backing up hadoop core-site to $IGNITE_HOME"
 sudo cp core-site.xml $IGNITE_HOME/core-site.xml.backup.beforeignite;
-
-#sudo su hdfs <<'EOF'
-#IGNITE_BINARY="apache-ignite-hadoop-1.7.0-bin"
-#export IGNITE_HOME="/hadoop/ignite/$IGNITE_BINARY";
-#export HADOOP_HOME="/usr/hdp/current/hadoop-client";
-#export HADOOP_COMMON_HOME="/usr/hdp/current/hadoop-client";
-#export HADOOP_HDFS_HOME="/usr/hdp/current/hadoop-hdfs-client";
-#export HADOOP_MAPRED_HOME="/usr/hdp/current/hadoop-mapreduce-client";
-
-
-#backup hadoop core-sitE.XML
-#sudo cp $HADOOP_HOME/conf/core-site.xml $HADOOP_HOME/conf/core-site.xml.beforeignite_$(date +%Y%m%d_%H%M%S);
-
-#append ignite hadoop properties
-#sed '/<\/configuration>/i <property><name>fs.igfs.impl</name><value>org.apache.ignite.hadoop.fs.v1.IgniteHadoopFileSystem</value></property><property><name>fs.AbstractFileSystem.igfs.impl</name><value>org.apache.ignite.hadoop.fs.v2.IgniteHadoopFileSystem</value></property>' $HADOOP_HOME/conf/core-site.xml > /hadoop/sedhdfs.out;
-#EOF
-#sudo cp /home/hdfs/sedhdfs.out $HADOOP_CONF_DIR/core-site.xml
-#sudo chown hdfs:hadoop $HADOOP_CONF_DIR/core-site.xml
 
 #update core-site.xml with Ignite info
 sudo /var/lib/ambari-server/resources/scripts/configs.sh -u $AMBARI_ADMIN -p $AMBARI_PWD -port 8080 set $AMBARI_HOST $AMBARI_CLUSTER core-site fs.igfs.impl org.apache.ignite.hadoop.fs.v1.IgniteHadoopFileSystem;
@@ -256,14 +194,12 @@ echo "created symlink from $HADOOP_HOME/share/hadoop/common/lib; to $HADOOP_HOME
 cd $IGNITE_HOME;
 sudo chmod 777 bin/*.sh;
 
-#sudo rm apache-ignite-fabric-1.7.0-bin.zip
-#sudo rm -R apache-ignite-fabric-1.7.0-bin
-
 echo "starting Ignite in background.."
 
 export HADOOP_HOME="/usr/hdp/current/hadoop-client"
 sudo mkdir -p $IGNITE_HOME/work/;
-sudo chown -R $SSH_USER. $IGNITE_HOME/work/;
+#sudo chown -R $SSH_USER. $IGNITE_HOME/work/;
+sudo chmod -R 777 $IGNITE_HOME/work/
 nohup bin/ignite.sh &
 
 exit $?
