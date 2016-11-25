@@ -294,6 +294,7 @@ setupApacheIgniteService(){
 }
 
 startApacheIgnite(){
+	cd $IGNITE_HOME/;
 	echo "starting Apache Ignite in background"
 	export HADOOP_HOME="/usr/hdp/current/hadoop-client"
 	nohup bin/ignite.sh &
