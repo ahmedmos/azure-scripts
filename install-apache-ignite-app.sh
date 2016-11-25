@@ -67,6 +67,7 @@ export AMBARI_ADMIN=$USERID
 export AMBARI_PWD=$PASSWD
 
 echo "Defined necessary environment variables before defining functions.."
+
 ## ASSISTING FUNCTIONS ##
 checkHostNameAndSetClusterName() {
     fullHostName=$(hostname -f)
@@ -120,6 +121,7 @@ stopServiceViaRest() {
     SERVICENAME=$1
     echo "Stopping $SERVICENAME"
     curl -u $USERID:$PASSWD -i -H 'X-Requested-By: ambari' -X PUT -d '{"RequestInfo": {"context" :"Stop Service for Hue installation"}, "Body": {"ServiceInfo": {"state": "INSTALLED"}}}' http://$ACTIVEAMBARIHOST:$PORT/api/v1/clusters/$CLUSTERNAME/services/$SERVICENAME
+    sleep 2
 }
 
 startServiceViaRest() {
@@ -150,8 +152,7 @@ downloadAndUnzipApacheIgnite() {
 	#DELETE APACHE IGNITE BEFORE INSTALLING
 	if [ -d "$IGNITE_HOME" ]; then 
 		echo "Removing existing Ignite binaries: $IGNITE_HOME_DIR/$IGNITE_BINARY"
-		rm -r $IGNITE_HOME_DIR/$IGNITE_BINARY
-		rm $IGNITE_HOME_DIR/$IGNITE_BINARY.zip; 
+		rm -r $IGNITE_HOME_DIR/ 
 	fi
 	
 	echo "Downloading Apache Ignite"
@@ -244,13 +245,13 @@ updateApacheIgniteConfig(){
 		xmlstarlet ed --inplace -N x="http://www.springframework.org/schema/beans" -s "//x:property[@name='addresses']/x:list" -t elem -n value -v "$node:47500..47509" default-config.xml
 	done
 	
-	#rm sdfs-default-config.xml;
-	#rm sdfs-dspi-default-config.xml;
-	#rm ignite-default-config-wasb.xml;
-	#rm ignite-default-config-emptyprop;
-	#rm ignite-default-config-prop.xml;
-	#rm ignite-default-config-list.xml;
-	#rm default-config-sdfs.xml;
+	rm sdfs-default-config.xml;
+	rm sdfs-dspi-default-config.xml;
+	rm ignite-default-config-wasb.xml;
+	rm ignite-default-config-emptyprop;
+	rm ignite-default-config-prop.xml;
+	rm ignite-default-config-list.xml;
+	rm default-config-sdfs.xml;
 	
 	echo "Updated Ignite default-config.xml"
 }
@@ -311,7 +312,7 @@ validateUsernameAndPassword
 #echo "end validateUsernameAndPassword"
 
 #echo "begin stopServiceViaRest"
-stopServiceViaRest HDFS
+stopServiceViaRest MAPREDUCE2
 #echo "end stopServiceViaRest"
 
 #echo "begin stopServiceViaRest"
@@ -319,7 +320,7 @@ stopServiceViaRest YARN
 #echo "end stopServiceViaRest"
 
 #echo "begin stopServiceViaRest"
-stopServiceViaRest MAPREDUCE2
+stopServiceViaRest HDFS
 #echo "end stopServiceViaRest"
 
 #echo "begin downloadAndUnzipApacheIgnite"
@@ -343,9 +344,9 @@ updateApacheSparkConfig;
 #echo "end updateApacheSparkConfig"
 
 #echo "start service rest"
+startServiceViaRest HDFS
 startServiceViaRest YARN
 startServiceViaRest MAPREDUCE2
-startServiceViaRest HDFS
 #echo "completed"
 
 #echo "begin startApacheIgnite"
