@@ -79,13 +79,7 @@ checkHostNameAndSetClusterName() {
             exit 133
         fi
     fi
-    echo "Cluster Name=$CLUSTERNAME"
-    
-    export AMBARI_HOST=$fullHostName
-    export AMBARI_CLUSTER=$CLUSTERNAME
-    
-    export FS_DEFAULT_DFS=`$AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT get $ACTIVEAMBARIHOST $CLUSTERNAME core-site | grep -o '"wasb:.*"' | sed 's/"//g'`
-    export WORKER_NODES=(`curl -k -s -u $USERID:$PASSWD "http://$ACTIVEAMBARIHOST:$PORT/api/v1/clusters/$CLUSTERNAME/hosts" | grep -o '"wn.*"' | sed 's/"//g'`)
+    echo "Cluster Name=$CLUSTERNAME"  
 }
 
 validateUsernameAndPassword() {
@@ -97,11 +91,6 @@ validateUsernameAndPassword() {
 }
 
 updateAmbariConfigs() {
-    echo "AMBARI HOST = $AMBARI_HOST"
-    echo "AMBARI CLUSTER = $AMBARI_CLUSTER"
-    echo "ACTIVE AMBARI HOST = $ACTIVEAMBARIHOST"
-    echo "CLUSTERNAME = $CLUSTERNAME"
-    
     updateResult=$(bash $AMBARICONFIGS_SH -u $USERID -p $PASSWD -p $PORT set $ACTIVEAMBARIHOST $CLUSTERNAME core-site "fs.igfs.impl" "org.apache.ignite.hadoop.fs.v1.IgniteHadoopFileSystem")
     
     if [[ $updateResult != *"Tag:version"* ]] && [[ $updateResult == *"[ERROR]"* ]]; then
@@ -206,10 +195,19 @@ updateApacheSparkConfig(){
 }
 
 updateApacheIgniteConfig(){
+
+	# extract default file system from core-site.xml
+	FS_DEFAULT_DFS=`$AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT get $ACTIVEAMBARIHOST $CLUSTERNAME core-site | grep -o '"wasb:.*"' | sed 's/"//g'`
+    	echo "fs.defaultFS=$FS_DEFAULT_DFS"
+	
+	# extract worker nodes from ambari hosts
+	WORKER_NODES=(`curl -k -s -u $USERID:$PASSWD "http://$ACTIVEAMBARIHOST:$PORT/api/v1/clusters/$CLUSTERNAME/hosts" | grep -o '"wn.*"' | sed 's/"//g'`)
+	echo "worker nodes = ${WORKER_NODES}"
+
 	#append and change ignite default config xml
-	cd $IGNITE_HOME;
+	cd $IGNITE_HOME/config;
 	echo "uncommenting the secondaryFileSystem lines"
-	sed '/^\s*<!--/!b;N;/name="secondaryFileSystem"/s/.*\n//;T;:a;n;/^\s*-->/!ba;d' config/default-config.xml > sdfs-default-config.xml;
+	sed '/^\s*<!--/!b;N;/name="secondaryFileSystem"/s/.*\n//;T;:a;n;/^\s*-->/!ba;d' default-config.xml > sdfs-default-config.xml;
 	
 	#enable discovery services
 	echo "uncommenting the discoverySpi lines"
@@ -246,13 +244,13 @@ updateApacheIgniteConfig(){
 		xmlstarlet ed --inplace -N x="http://www.springframework.org/schema/beans" -s "//x:property[@name='addresses']/x:list" -t elem -n value -v "$node:47500..47509" default-config.xml
 	done
 	
-	rm sdfs-default-config.xml;
-	rm sdfs-dspi-default-config.xml;
-	rm ignite-default-config-wasb.xml;
-	rm ignite-default-config-emptyprop;
-	rm ignite-default-config-prop.xml;
-	rm ignite-default-config-list.xml;
-	rm default-config-sdfs.xml;
+	#rm sdfs-default-config.xml;
+	#rm sdfs-dspi-default-config.xml;
+	#rm ignite-default-config-wasb.xml;
+	#rm ignite-default-config-emptyprop;
+	#rm ignite-default-config-prop.xml;
+	#rm ignite-default-config-list.xml;
+	#rm default-config-sdfs.xml;
 	
 	echo "Updated Ignite default-config.xml"
 }
@@ -284,7 +282,10 @@ setupApacheIgniteService(){
 	
 	echo "make sure Ignite bin scripts are executable"
 	cd $IGNITE_HOME;
-	chmod 777 bin/*.sh;	
+	chmod 777 bin/*.sh;
+	
+	echo "make sure Ignite config are writeable"
+	chmod -R +w config/;
 	
 	echo "make sure any user can write to Ignite work directory"
 	mkdir -p $IGNITE_HOME/work/;
@@ -293,58 +294,61 @@ setupApacheIgniteService(){
 }
 
 startApacheIgnite(){
+	echo "starting Apache Ignite in background"
 	export HADOOP_HOME="/usr/hdp/current/hadoop-client"
 	nohup bin/ignite.sh &
 }
 ####################################################################
 
 ## begin script main ##
-echo "begin checkHostNameAndSetClusterName"
+#echo "begin checkHostNameAndSetClusterName"
 checkHostNameAndSetClusterName
-echo "end checkHostNameAndSetClusterName"
+#echo "end checkHostNameAndSetClusterName"
 
-echo "begin validateUsernameAndPassword"
+#echo "begin validateUsernameAndPassword"
 validateUsernameAndPassword
-echo "end validateUsernameAndPassword"
+#echo "end validateUsernameAndPassword"
 
-echo "begin stopServiceViaRest"
+#echo "begin stopServiceViaRest"
 stopServiceViaRest HDFS
-echo "end stopServiceViaRest"
+#echo "end stopServiceViaRest"
 
-echo "begin stopServiceViaRest"
+#echo "begin stopServiceViaRest"
 stopServiceViaRest YARN
-echo "end stopServiceViaRest"
+#echo "end stopServiceViaRest"
 
-echo "begin stopServiceViaRest"
+#echo "begin stopServiceViaRest"
 stopServiceViaRest MAPREDUCE2
-echo "end stopServiceViaRest"
+#echo "end stopServiceViaRest"
 
-echo "begin downloadAndUnzipApacheIgnite"
+#echo "begin downloadAndUnzipApacheIgnite"
 downloadAndUnzipApacheIgnite
-echo "end downloadAndUnzipApacheIgnite"
+#echo "end downloadAndUnzipApacheIgnite"
 
-echo "beging updateAmbariConfigs"
-updateAmbariConfigs;		
-echo "end updateAmbariConfigs"
-
-echo "begin updateApacheSparkConfig"
-updateApacheSparkConfig;
-echo "end updateApacheSparkConfig"
-
-echo "begin updateApacheIgniteConfig"
-updateApacheIgniteConfig;
-echo "end updateApacheIgniteConfig"
-
-echo "begin setupApacheIgniteService"
+#echo "begin setupApacheIgniteService"
 setupApacheIgniteService
-echo "end setupApacheIgniteService"
+#echo "end setupApacheIgniteService"
 
-echo "begin startApacheIgnite"
-startApacheIgnite
-echo "end startApacheIgnite"
+#echo "begin updateApacheIgniteConfig"
+updateApacheIgniteConfig;
+#echo "end updateApacheIgniteConfig"
 
-echo "start service rest"
+#echo "beging updateAmbariConfigs"
+updateAmbariConfigs;		
+#echo "end updateAmbariConfigs"
+
+#echo "begin updateApacheSparkConfig"
+updateApacheSparkConfig;
+#echo "end updateApacheSparkConfig"
+
+#echo "start service rest"
 startServiceViaRest YARN
 startServiceViaRest MAPREDUCE2
 startServiceViaRest HDFS
-echo "completed"
+#echo "completed"
+
+#echo "begin startApacheIgnite"
+startApacheIgnite
+#echo "end startApacheIgnite"
+
+exit $?
