@@ -92,7 +92,7 @@ validateUsernameAndPassword() {
 }
 
 updateAmbariConfigs() {
-    updateResult=$(bash $AMBARICONFIGS_SH -u $USERID -p $PASSWD -p $PORT set $ACTIVEAMBARIHOST $CLUSTERNAME core-site "fs.igfs.impl" "org.apache.ignite.hadoop.fs.v1.IgniteHadoopFileSystem")
+    updateResult=$(bash $AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT set $ACTIVEAMBARIHOST $CLUSTERNAME core-site "fs.igfs.impl" "org.apache.ignite.hadoop.fs.v1.IgniteHadoopFileSystem")
     
     if [[ $updateResult != *"Tag:version"* ]] && [[ $updateResult == *"[ERROR]"* ]]; then
         echo "[ERROR] Failed to update core-site for property: 'fs.igfs.impl', Exiting!"
@@ -102,7 +102,7 @@ updateAmbariConfigs() {
     
     echo "Updated core-site.xml with fs.igfs.impl = org.apache.ignite.hadoop.fs.v1.IgniteHadoopFileSystem"
     
-    updateResult=$(bash $AMBARICONFIGS_SH -u $USERID -p $PASSWD set $ACTIVEAMBARIHOST $CLUSTERNAME core-site "fs.AbstractFileSystem.igfs.impl" "org.apache.ignite.hadoop.fs.v2.IgniteHadoopFileSystem")
+    updateResult=$(bash $AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT set $ACTIVEAMBARIHOST $CLUSTERNAME core-site "fs.AbstractFileSystem.igfs.impl" "org.apache.ignite.hadoop.fs.v2.IgniteHadoopFileSystem")
     
     if [[ $updateResult != *"Tag:version"* ]] && [[ $updateResult == *"[ERROR]"* ]]; then
         echo "[ERROR] Failed to update core-site for property: 'fs.AbstractFileSystem.igfs.impl', Exiting!"
