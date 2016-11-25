@@ -349,6 +349,10 @@ startServiceViaRest YARN
 startServiceViaRest MAPREDUCE2
 #echo "completed"
 
+# restart ambari agent and server
+service ambari-agent restart
+service ambari-server restart
+
 #echo "begin startApacheIgnite"
 startApacheIgnite
 #echo "end startApacheIgnite"
