@@ -174,51 +174,23 @@ function updateApacheSparkConfig(){
 	
 	# get spark-env.sh contents
 	sparkenv_original="`$AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT get $ACTIVEAMBARIHOST $CLUSTERNAME spark-env | grep -o '"content.*"' | sed 's/"content"[ ^I]:[ ^I]//g'| sed 's/"//g'`"
+	# replace \n with \\n
+	sparkenv_original=$(echo $sparkenv_original | sed -r 's/\\n+/\\\\n/g')
 	
 	# Ignite updates into spark-env.sj
-	sparkenv_updated="IGNITE_BINARY=\"apache-ignite-hadoop-1.7.0-bin\"\n IGNITE_HOME=\"/hadoop/ignite/\$IGNITE_BINARY\"\n	IGNITE_LIBS=\"\${IGNITE_HOME}/libs/*\"\n for file in \${IGNITE_LIBS}\n do\n if [ -d \${file} ] && [ \"\${file}\" != \"\${IGNITE_HOME}\"/libs/optional ]; then\n IGNITE_LIBS=\${IGNITE_LIBS}:\${file}/*\n fi\n done\n export SPARK_CLASSPATH=\$SPARK_CLASSPATH:\$IGNITE_LIBS"
+	sparkenv_ignite="IGNITE_HOME=/hadoop/ignite/apache-ignite-hadoop-1.7.0-bin\\\\n IGNITE_LIBS=\${IGNITE_HOME}/libs/*\\\\n for file in \${IGNITE_LIBS}\\\\n do\\\\n IGNITE_LIBS=\${IGNITE_LIBS}:\${file}/*\\\\n done\\\\n export SPARK_CLASSPATH=\$SPARK_CLASSPATH:\$IGNITE_LIBS"
 	
 	# original spark + Ignite updates
-	sparkenv="$sparkenv_original\n$sparkenv_updated"
+	sparkenv_updated="$sparkenv_original\\\\n$sparkenv_ignite"
 	
-	# replace in the original json config
-	# sed -i "s/^\(\"content\"*:*\).*$/\1:\"$sparkenv\",/" original_spark.json
-	# use different delimiter in sed
-	sed -i "s~^\(\"content\"*:*\).*$~\1:\"$sparkenv\",~" original_spark.json
+	# replace in the original json config using different delimiter in sed
+	sed -i "s~^\(\"content\"*:*\).*$~\1:\"$sparkenv_updated\",~" original_spark.json
 	
 	# upload the spark-env.sh to Ambari
 	$AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT set $ACTIVEAMBARIHOST $CLUSTERNAME spark-env original_spark.json
 
 	# remove the json file
 	rm original_spark.json
-	
-#su spark <<'EOG'
-#	sed -i -e '$a\' $SPARK_HOME/conf/spark-env.sh
-
-#	IGNITE_BINARY="apache-ignite-hadoop-1.7.0-bin";
-#	export IGNITE_HOME_DIR="/hadoop/ignite";
-#	export IGNITE_HOME="$IGNITE_HOME_DIR/$IGNITE_BINARY";
-#	export HADOOP_HOME="/usr/hdp/current/hadoop-client";
-#	export HADOOP_COMMON_HOME="/usr/hdp/current/hadoop-client";
-#	export HADOOP_HDFS_HOME="/usr/hdp/current/hadoop-hdfs-client";
-#	export HADOOP_MAPRED_HOME="/usr/hdp/current/hadoop-mapreduce-client";
-
-#	sed -i -e '$a\' $SPARK_HOME/conf/spark-env.sh
-	#append ignite libs to spark-env.sh
-	cat <<EOT >> $SPARK_HOME/conf/spark-env.sh
-
-#	IGNITE_BINARY="apache-ignite-hadoop-1.7.0-bin"
-#	IGNITE_HOME="/hadoop/ignite/$IGNITE_BINARY"
-#	IGNITE_LIBS="\${IGNITE_HOME}/libs/*"
-#	for file in \${IGNITE_LIBS}
-#	do
-#	if [ -d \${file} ] && [ "\${file}" != "\${IGNITE_HOME}"/libs/optional ]; then
-#	IGNITE_LIBS=\${IGNITE_LIBS}:\${file}/*
-#	fi
-#	done
-#	export SPARK_CLASSPATH=\$SPARK_CLASSPATH:\$IGNITE_LIBS		
-#	EOT
-#EOG	
 	echo "Spark spark-env.sh is updated.."
 }
 
