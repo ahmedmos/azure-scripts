@@ -282,7 +282,7 @@ setupApacheIgniteService(){
 	ln -sf $HADOOP_HOME/lib $HADOOP_HOME/share/hadoop/common/;
 	echo "created symlink from $HADOOP_HOME/share/hadoop/common/lib; to $HADOOP_HOME/lib"
 	
-	echo "make sure Ignite bin scripts are executable
+	echo "make sure Ignite bin scripts are executable"
 	cd $IGNITE_HOME;
 	chmod 777 bin/*.sh;	
 	
