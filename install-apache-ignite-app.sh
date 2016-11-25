@@ -73,10 +73,7 @@ function checkHostNameAndSetClusterName() {
     export AMBARI_CLUSTER=$CLUSTERNAME
     
     export FS_DEFAULT_DFS=$AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT get $ACTIVEAMBARIHOST $CLUSTERNAME core-site | grep -o '"wasb:.*"' | sed 's/"//g'
-	export WORKER_NODES=(`curl -k -s -u $USERID:$PASSWD "http://$ACTIVEAMBARIHOST:$PORT/api/v1/clusters/$CLUSTERNAME/hosts" | grep -o '"wn.*"' | sed 's/"//g'`)
-}
-
-function retrieveWorkerNodes(){
+    export WORKER_NODES=(`curl -k -s -u $USERID:$PASSWD "http://$ACTIVEAMBARIHOST:$PORT/api/v1/clusters/$CLUSTERNAME/hosts" | grep -o '"wn.*"' | sed 's/"//g'`)
 }
 
 function validateUsernameAndPassword() {
