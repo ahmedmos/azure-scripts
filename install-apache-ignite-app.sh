@@ -169,7 +169,7 @@ function updateApacheSparkConfig(){
 	echo "backing up spark-env.sh to $IGNITE_HOME"
 	cp $SPARK_HOME/conf/spark-env.sh $IGNITE_HOME/config/spark-env.sh.backup;
 		
-su spark <<'EOF'
+su spark <<'EOG'
 sed -i -e '$a\' $SPARK_HOME/conf/spark-env.sh
 		
 IGNITE_BINARY="apache-ignite-hadoop-1.7.0-bin";
@@ -195,7 +195,7 @@ fi
 done
 export SPARK_CLASSPATH=\$SPARK_CLASSPATH:\$IGNITE_LIBS		
 EOT
-EOF	
+EOG	
 	echo "Spark spark-env.sh is updated.."
 }
 
