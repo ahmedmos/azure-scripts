@@ -6,14 +6,26 @@ function package_exists() {
     return dpkg -l "$1" &> /dev/null
 }
 
-function usage() {
+usage() {
     echo ""
     echo "Usage: sudo -E bash install-ignite-app.sh";
     echo "This script does NOT require Ambari username and password";
     exit 132;
 }
 
+# RUN ONLY USING ROOT
+if [ "$(id -u)" != "0" ]; then
+    echo "[ERROR] The script has to be run as root."
+    usage
+fi
+
+# INSTALL XMLSTARLET PACKAGE
+if ! package_exists xmlstarlet ; then
+	apt install xmlstarlet
+fi
+
 ## IMPORT HELPER MODULE ##
+echo "import HDInsight utilities script"
 wget -O /tmp/HDInsightUtilities-v01.sh -q https://hdiconfigactions.blob.core.windows.net/linuxconfigactionmodulev01/HDInsightUtilities-v01.sh && source /tmp/HDInsightUtilities-v01.sh && rm -f /tmp/HDInsightUtilities-v01.sh
 
 ## GET AMBARI USERNAME AND PASSWORD ##
@@ -47,7 +59,6 @@ IGNITE_TMPFOLDER=/tmp/ignite
 export IGNITE_HOME_DIR="/hadoop/ignite";
 export IGNITE_HOME="$IGNITE_HOME_DIR/$IGNITE_BINARY";
 
-
 AMBARICONFIGS_SH=/var/lib/ambari-server/resources/scripts/configs.sh
 PORT=8080
 ACTIVEAMBARIHOST=headnodehost
@@ -55,9 +66,9 @@ ACTIVEAMBARIHOST=headnodehost
 export AMBARI_ADMIN=$USERID
 export AMBARI_PWD=$PASSWD
 
-echo "Beginning main.."
+echo "Defined necessary environment variables before defining functions.."
 ## ASSISTING FUNCTIONS ##
-function checkHostNameAndSetClusterName() {
+checkHostNameAndSetClusterName() {
     fullHostName=$(hostname -f)
     echo "fullHostName=$fullHostName"
     CLUSTERNAME=$(sed -n -e 's/.*\.\(.*\)-ssh.*/\1/p' <<< $fullHostName)
@@ -77,7 +88,7 @@ function checkHostNameAndSetClusterName() {
     export WORKER_NODES=(`curl -k -s -u $USERID:$PASSWD "http://$ACTIVEAMBARIHOST:$PORT/api/v1/clusters/$CLUSTERNAME/hosts" | grep -o '"wn.*"' | sed 's/"//g'`)
 }
 
-function validateUsernameAndPassword() {
+validateUsernameAndPassword() {
     coreSiteContent=$(bash $AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT get $ACTIVEAMBARIHOST $CLUSTERNAME core-site)
     if [[ $coreSiteContent == *"[ERROR]"* && $coreSiteContent == *"Bad credentials"* ]]; then
         echo "[ERROR] Username and password are invalid. Exiting!"
@@ -85,7 +96,7 @@ function validateUsernameAndPassword() {
     fi
 }
 
-function updateAmbariConfigs() {
+updateAmbariConfigs() {
     echo "AMBARI HOST = $AMBARI_HOST"
     echo "AMBARI CLUSTER = $AMBARI_CLUSTER"
     echo "ACTIVE AMBARI HOST = $ACTIVEAMBARIHOST"
@@ -112,7 +123,7 @@ function updateAmbariConfigs() {
     echo "Updated core-site.xml with fs.AbstractFileSystem.igfs.impl = org.apache.ignite.hadoop.fs.v2.IgniteHadoopFileSystem"
 }
 
-function stopServiceViaRest() {
+stopServiceViaRest() {
     if [ -z "$1" ]; then
         echo "Need service name to stop service"
         exit 136
@@ -122,7 +133,7 @@ function stopServiceViaRest() {
     curl -u $USERID:$PASSWD -i -H 'X-Requested-By: ambari' -X PUT -d '{"RequestInfo": {"context" :"Stop Service for Hue installation"}, "Body": {"ServiceInfo": {"state": "INSTALLED"}}}' http://$ACTIVEAMBARIHOST:$PORT/api/v1/clusters/$CLUSTERNAME/services/$SERVICENAME
 }
 
-function startServiceViaRest() {
+startServiceViaRest() {
     if [ -z "$1" ]; then
         echo "Need service name to start service"
         exit 136
@@ -139,7 +150,7 @@ function startServiceViaRest() {
     echo $startResult
 }
 
-function downloadAndUnzipApacheIgnite() {
+downloadAndUnzipApacheIgnite() {
     #KILL APACHE IGNITE IF RUNNING
 	ignitepid=`ps -ef | grep ignite | grep default-config.xml | awk '{print $2}'`
 	if [ ! -z "$ignitepid" ]; then
@@ -165,7 +176,7 @@ function downloadAndUnzipApacheIgnite() {
 	rm $IGNITE_HOME_DIR/$IGNITE_BINARY.zip;
 }
 
-function updateApacheSparkConfig(){
+updateApacheSparkConfig(){
 	echo "backing up spark-env.sh to $IGNITE_HOME"
 	cp $SPARK_HOME/conf/spark-env.sh $IGNITE_HOME/config/spark-env.sh.backup;
 	
@@ -194,7 +205,7 @@ function updateApacheSparkConfig(){
 	echo "Spark spark-env.sh is updated.."
 }
 
-function updateApacheIgniteConfig(){
+updateApacheIgniteConfig(){
 	#append and change ignite default config xml
 	cd $IGNITE_HOME;
 	echo "uncommenting the secondaryFileSystem lines"
@@ -246,7 +257,7 @@ function updateApacheIgniteConfig(){
 	echo "Updated Ignite default-config.xml"
 }
 
-function setupApacheIgniteService(){
+setupApacheIgniteService(){
 	echo "Remove Ignite ignite-spark 2.11 scala folder"
 	rm -R $IGNITE_HOME/libs/ignite-spark;
 	
@@ -281,22 +292,11 @@ function setupApacheIgniteService(){
 	chmod -R 777 $IGNITE_HOME/work/
 }
 
-function startApacheIgnite(){
+startApacheIgnite(){
 	export HADOOP_HOME="/usr/hdp/current/hadoop-client"
 	nohup bin/ignite.sh &
 }
 ####################################################################
-
-# RUN ONLY USING ROOT
-if [ "$(id -u)" != "0" ]; then
-    echo "[ERROR] The script has to be run as root."
-    usage
-fi
-
-# INSTALL XMLSTARLET PACKAGE
-if ! package_exists xmlstarlet ; then
-	apt install xmlstarlet
-fi
 
 ## begin script main ##
 echo "begin checkHostNameAndSetClusterName"
