@@ -55,6 +55,7 @@ ACTIVEAMBARIHOST=headnodehost
 export AMBARI_ADMIN=$USERID
 export AMBARI_PWD=$PASSWD
 
+echo "Beginning main.."
 ## ASSISTING FUNCTIONS ##
 function checkHostNameAndSetClusterName() {
     fullHostName=$(hostname -f)
@@ -72,7 +73,7 @@ function checkHostNameAndSetClusterName() {
     export AMBARI_HOST=$fullHostName
     export AMBARI_CLUSTER=$CLUSTERNAME
     
-    export FS_DEFAULT_DFS=$AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT get $ACTIVEAMBARIHOST $CLUSTERNAME core-site | grep -o '"wasb:.*"' | sed 's/"//g'
+    export FS_DEFAULT_DFS=`$AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT get $ACTIVEAMBARIHOST $CLUSTERNAME core-site | grep -o '"wasb:.*"' | sed 's/"//g'`
     export WORKER_NODES=(`curl -k -s -u $USERID:$PASSWD "http://$ACTIVEAMBARIHOST:$PORT/api/v1/clusters/$CLUSTERNAME/hosts" | grep -o '"wn.*"' | sed 's/"//g'`)
 }
 
@@ -85,7 +86,7 @@ function validateUsernameAndPassword() {
 }
 
 function updateAmbariConfigs() {
-	echo "AMBARI HOST = $AMBARI_HOST"
+    echo "AMBARI HOST = $AMBARI_HOST"
     echo "AMBARI CLUSTER = $AMBARI_CLUSTER"
     echo "ACTIVE AMBARI HOST = $ACTIVEAMBARIHOST"
     echo "CLUSTERNAME = $CLUSTERNAME"
@@ -305,21 +306,52 @@ if ! package_exists xmlstarlet ; then
 fi
 
 ## begin script main ##
+echo "begin checkHostNameAndSetClusterName"
 checkHostNameAndSetClusterName
+echo "end checkHostNameAndSetClusterName"
+
+echo "begin validateUsernameAndPassword"
 validateUsernameAndPassword
+echo "end validateUsernameAndPassword"
 
+echo "begin stopServiceViaRest"
 stopServiceViaRest HDFS
+echo "end stopServiceViaRest"
+
+echo "begin stopServiceViaRest"
 stopServiceViaRest YARN
+echo "end stopServiceViaRest"
+
+echo "begin stopServiceViaRest"
 stopServiceViaRest MAPREDUCE2
+echo "end stopServiceViaRest"
 
+echo "begin downloadAndUnzipApacheIgnite"
 downloadAndUnzipApacheIgnite
+echo "end downloadAndUnzipApacheIgnite"
 
+echo "beging updateAmbariConfigs"
 updateAmbariConfigs;		
-updateApacheSparkConfig;
-updateApacheIgniteConfig;
-setupApacheIgniteService
-startApacheIgnite
+echo "end updateAmbariConfigs"
 
+echo "begin updateApacheSparkConfig"
+updateApacheSparkConfig;
+echo "end updateApacheSparkConfig"
+
+echo "begin updateApacheIgniteConfig"
+updateApacheIgniteConfig;
+echo "end updateApacheIgniteConfig"
+
+echo "begin setupApacheIgniteService"
+setupApacheIgniteService
+echo "end setupApacheIgniteService"
+
+echo "begin startApacheIgnite"
+startApacheIgnite
+echo "end startApacheIgnite"
+
+echo "start service rest"
 startServiceViaRest YARN
 startServiceViaRest MAPREDUCE2
 startServiceViaRest HDFS
+echo "completed"
