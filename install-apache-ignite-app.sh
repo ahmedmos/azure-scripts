@@ -202,7 +202,7 @@ updateApacheIgniteConfig(){
     	echo "fs.defaultFS=$FS_DEFAULT_DFS"
 	
 	# extract worker nodes from ambari hosts
-	WORKER_NODES=(`curl -k -s -u $USERID:$PASSWD "http://$ACTIVEAMBARIHOST:$PORT/api/v1/clusters/$CLUSTERNAME/hosts" | grep -o '"wn.*"' | sed 's/"//g'`)
+	WORKER_NODES=(`curl -k -s -u $USERID:$PASSWD "http://$ACTIVEAMBARIHOST:$PORT/api/v1/clusters/$CLUSTERNAME/hosts" | grep -o '"[hw]n.*"' | sed 's/"//g'`)
 	echo "worker nodes = ${WORKER_NODES}"
 
 	#append and change ignite default config xml
