@@ -1,5 +1,5 @@
 # azure-scripts
-This repo contains Azure management scripts for certain purposes.
+This repo contains Azure management scripts for certain purposes. The scripts here will be the "experimental" version, the final ones should be found in the Iaas Applications repo (e.g. the final Apache Ignite script is pushed there).
 
 # Using install-apache-ignite.sh
 This script installs [Apache Ignite](www.ignite.apache.org) on an HDInsight cluster, regardless how many your HDInsight cluster has.
